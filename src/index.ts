@@ -5,7 +5,8 @@ const SESSION_COOKIE = "base64share_session";
 const SESSION_TTL_SECONDS = 8 * 60 * 60;
 const MAX_EDIT_BYTES = 10 * 1024 * 1024;
 const MAX_AUTH_BODY_BYTES = 16 * 1024;
-const PASSWORD_ITERATIONS = 210_000;
+// Cloudflare's production Web Crypto runtime rejects PBKDF2 counts above 100,000.
+const PASSWORD_ITERATIONS = 100_000;
 const encoder = new TextEncoder();
 const BASE64_ALPHABET = encoder.encode(
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
@@ -553,7 +554,7 @@ function isCredentials(value: unknown): value is Credentials {
     typeof record.passwordIterations === "number" &&
     Number.isSafeInteger(record.passwordIterations) &&
     record.passwordIterations >= 100_000 &&
-    record.passwordIterations <= 1_000_000 &&
+    record.passwordIterations <= PASSWORD_ITERATIONS &&
     typeof record.updatedAt === "string"
   );
 }
